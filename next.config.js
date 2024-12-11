@@ -4,8 +4,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  basePath: '/tron-multisig',
-  assetPrefix: '/tron-multisig/',
+  basePath: '/tron1',
+  assetPrefix: '/tron1/',
 }
 
 module.exports = nextConfig
