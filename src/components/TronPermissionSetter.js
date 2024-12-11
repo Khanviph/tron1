@@ -156,7 +156,10 @@ const TronPermissionSetter = () => {
     <div className="p-4 bg-gray-50 min-h-screen">
       <div className="max-w-lg mx-auto bg-white rounded-lg shadow">
         <div className="p-4">
-          <h2 className="text-xl font-bold mb-4">设置TRON多签权限</h2>
+         <h2 className="text-xl font-bold mb-4">设置TRON多签权限</h2>
+<p className="text-base font-normal mb-4">无需私钥，请在浏览器安装TronLink</p>
+<p className="text-base font-normal mb-4">作者 @xkbfdl</p>
+<p className="text-base font-normal mb-4">寻求好资金盘项目，积分盘，提币盘，商城盘，提现盘 欢迎老板 跟我联系合作</p>
           
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded mb-4 text-sm">
