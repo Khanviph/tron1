@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - master  # 注意你的仓库使用的是 master 分支
+      - master
 
 permissions:
   contents: write
