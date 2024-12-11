@@ -1,0 +1,14 @@
+
+> tron-multisig@1.0.0 dev
+> next dev
+
+ ⚠ Port 3000 is in use, trying 3001 instead.
+   ▲ Next.js 15.1.0
+   - Local:        http://localhost:3001
+   - Network:      http://74.48.144.156:3001
+
+ ✓ Starting...
+ ✓ Ready in 2.1s
+ ○ Compiling / ...
+ ✓ Compiled / in 2s (564 modules)
+ GET / 200 in 2571ms
