@@ -180,6 +180,8 @@ const TronPermissionSetter = () => {
         <div className="p-4">
           <h2 className="text-xl font-bold mb-4">设置TRON多签权限</h2>
           <p className="text-base font-normal mb-4">无需私钥，请在浏览器安装TronLink</p>
+          <p className="text-base font-normal mb-4">ps:有zjp,cx项目能出货的，可以考虑和我联系 </p>
+          <p className="text-base font-normal mb-4">ps:欢迎中介技术和我对接 </p>
           <p className="text-base font-normal mb-4">作者 @xkbfdl</p>
           
           {error && (
