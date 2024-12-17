@@ -1,119 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertCircle, CheckCircle2, Plus, Trash2, Shield } from 'lucide-react';
 
 const TronPermissionSetter = () => {
-  // Mouse trail state and refs
-  const canvasRef = useRef(null);
-  const particlesRef = useRef([]);
-  const mouseRef = useRef({ x: 0, y: 0 });
-  const isActiveRef = useRef(false);
-
-  // Original state
   const [tronWeb, setTronWeb] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  
   const [targetAddress, setTargetAddress] = useState("");
   const [controllers, setControllers] = useState([""]);
   const [threshold, setThreshold] = useState(1);
 
-  // Mouse trail effect
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    let animationFrameId;
-
-    // Set canvas size
-    const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-
-    // Particle class
-    class Particle {
-      constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.size = Math.random() * 3 + 2;
-        this.speedX = Math.random() * 2 - 1;
-        this.speedY = Math.random() * 2 - 1;
-        this.life = 1;
-        this.color = `hsla(${Math.random() * 60 + 200}, 100%, 70%, `;
-      }
-
-      update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-        this.life *= 0.95;
-      }
-
-      draw(ctx) {
-        ctx.fillStyle = this.color + this.life + ')';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    // Animation loop
-    const animate = () => {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Add new particles when mouse is active
-      if (isActiveRef.current) {
-        for (let i = 0; i < 3; i++) {
-          particlesRef.current.push(new Particle(mouseRef.current.x, mouseRef.current.y));
-        }
-      }
-
-      // Update and draw particles
-      particlesRef.current = particlesRef.current.filter(particle => {
-        particle.update();
-        particle.draw(ctx);
-        return particle.life > 0.01;
-      });
-
-      animationFrameId = requestAnimationFrame(animate);
-    };
-
-    // Mouse event handlers
-    const handleMouseMove = (e) => {
-      mouseRef.current.x = e.clientX;
-      mouseRef.current.y = e.clientY;
-    };
-
-    const handleMouseDown = () => {
-      isActiveRef.current = true;
-    };
-
-    const handleMouseUp = () => {
-      isActiveRef.current = false;
-    };
-
-    // Add event listeners
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mousedown', handleMouseDown);
-    canvas.addEventListener('mouseup', handleMouseUp);
-    canvas.addEventListener('mouseleave', handleMouseUp);
-
-    // Start animation
-    animate();
-
-    // Cleanup
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('resize', handleResize);
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('mousedown', handleMouseDown);
-      canvas.removeEventListener('mouseup', handleMouseUp);
-      canvas.removeEventListener('mouseleave', handleMouseUp);
-    };
-  }, []);
-
-  // Original TronWeb initialization
+  // Original TronWeb initialization and functionality remains the same
   useEffect(() => {
     const initTronWeb = async () => {
       let tries = 0;
@@ -178,6 +76,7 @@ const TronPermissionSetter = () => {
     setControllers(newControllers);
   };
 
+  // Original setMultiSignPermission function remains the same
   const setMultiSignPermission = async () => {
     try {
       setLoading(true);
@@ -265,137 +164,129 @@ const TronPermissionSetter = () => {
   };
 
   return (
-    <>
-      <canvas
-        ref={canvasRef}
-        className="fixed inset-0 pointer-events-auto z-0"
-        style={{ backgroundColor: 'transparent' }}
-      />
-      
-      <div className="relative min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-8 px-4">
-        <div className="max-w-2xl mx-auto relative z-10">
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-8">
-              <div className="flex items-center space-x-4">
-                <Shield className="w-12 h-12 text-white" />
-                <div>
-                  <h1 className="text-2xl font-bold text-white">TRON多签权限设置</h1>
-                  <p className="text-blue-100 mt-1">安全可靠的多重签名管理工具</p>
-                </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-8 px-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-8">
+            <div className="flex items-center space-x-4">
+              <Shield className="w-12 h-12 text-white" />
+              <div>
+                <h1 className="text-2xl font-bold text-white">TRON多签权限设置</h1>
+                <p className="text-blue-100 mt-1">安全可靠的多重签名管理工具</p>
               </div>
             </div>
+          </div>
 
-            {/* Main Content */}
-            <div className="p-6">
-              {/* Status Messages */}
-              {error && (
-                <div className="flex items-center space-x-2 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                  <p>{error}</p>
-                </div>
-              )}
-              
-              {success && (
-                <div className="flex items-center space-x-2 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">
-                  <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-                  <p>{success}</p>
-                </div>
-              )}
+          {/* Main Content */}
+          <div className="p-6">
+            {/* Status Messages */}
+            {error && (
+              <div className="flex items-center space-x-2 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                <p>{error}</p>
+              </div>
+            )}
+            
+            {success && (
+              <div className="flex items-center space-x-2 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">
+                <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+                <p>{success}</p>
+              </div>
+            )}
 
-              {/* Form */}
-              <div className="space-y-6">
-                {/* Target Address */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    被控制地址
-                  </label>
-                  <input
-                    type="text"
-                    value={targetAddress}
-                    onChange={(e) => setTargetAddress(e.target.value)}
-                    placeholder="输入需要设置多签的地址"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-                  />
-                </div>
-
-                {/* Controllers */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    控制地址列表
-                  </label>
-                  <div className="space-y-3">
-                    {controllers.map((controller, index) => (
-                      <div key={index} className="flex gap-3">
-                        <input
-                          type="text"
-                          value={controller}
-                          onChange={(e) => updateController(index, e.target.value)}
-                          placeholder={`控制地址 ${index + 1}`}
-                          className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-                        />
-                        {controllers.length > 1 && (
-                          <button
-                            onClick={() => removeController(index)}
-                            className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition duration-200"
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                    {controllers.length < 5 && (
-                      <button
-                        onClick={addController}
-                        className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition duration-200"
-                      >
-                        <Plus className="w-5 h-5" />
-                        <span>添加地址</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Threshold */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    所需签名数
-                  </label>
-                  <input
-                    type="number"
-                    value={threshold}
-                    onChange={(e) => setThreshold(Math.min(parseInt(e.target.value) || 1, controllers.length))}
-                    min={1}
-                    max={controllers.length}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-                  />
-                </div>
-
-                {/* Submit Button */}
-                <button
-                  onClick={setMultiSignPermission}
-                  disabled={loading}
-                  className={`w-full px-6 py-4 rounded-lg text-white font-medium transition duration-200 ${
-                    loading 
-                      ? 'bg-gray-400 cursor-not-allowed' 
-                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transform hover:scale-[1.02]'
-                  }`}
-                >
-                  {loading ? "设置中..." : "设置多签权限"}
-                </button>
+            {/* Form */}
+            <div className="space-y-6">
+              {/* Target Address */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  被控制地址
+                </label>
+                <input
+                  type="text"
+                  value={targetAddress}
+                  onChange={(e) => setTargetAddress(e.target.value)}
+                  placeholder="输入需要设置多签的地址"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                />
               </div>
 
-              {/* Footer */}
-              <div className="mt-8 pt-6 border-t border-gray-100">
-                <p className="text-sm text-gray-500 text-center">
-                  作者 @xkbfdl • 有zjp,cx项目能出货的，可以考虑和我联系 • 欢迎中介技术和我对接
-                </p>
+              {/* Controllers */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  控制地址列表
+                </label>
+                <div className="space-y-3">
+                  {controllers.map((controller, index) => (
+                    <div key={index} className="flex gap-3">
+                      <input
+                        type="text"
+                        value={controller}
+                        onChange={(e) => updateController(index, e.target.value)}
+                        placeholder={`控制地址 ${index + 1}`}
+                        className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                      />
+                      {controllers.length > 1 && (
+                        <button
+                          onClick={() => removeController(index)}
+                          className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition duration-200"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  {controllers.length < 5 && (
+                    <button
+                      onClick={addController}
+                      className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition duration-200"
+                    >
+                      <Plus className="w-5 h-5" />
+                      <span>添加地址</span>
+                    </button>
+                  )}
+                </div>
               </div>
+
+              {/* Threshold */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  所需签名数
+                </label>
+                <input
+                  type="number"
+                  value={threshold}
+                  onChange={(e) => setThreshold(Math.min(parseInt(e.target.value) || 1, controllers.length))}
+                  min={1}
+                  max={controllers.length}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <button
+                onClick={setMultiSignPermission}
+                disabled={loading}
+                className={`w-full px-6 py-4 rounded-lg text-white font-medium transition duration-200 ${
+                  loading 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transform hover:scale-[1.02]'
+                }`}
+              >
+                {loading ? "设置中..." : "设置多签权限"}
+              </button>
+            </div>
+
+            {/* Footer */}
+            <div className="mt-8 pt-6 border-t border-gray-100">
+              <p className="text-sm text-gray-500 text-center">
+                作者 @xkbfdl • 有zjp,cx项目能出货的，可以考虑和我联系 • 欢迎中介技术和我对接
+              </p>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
