@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
 const TronPermissionSetter = () => {
-  const [tronWeb, setTronWeb] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -9,6 +8,7 @@ const TronPermissionSetter = () => {
   const [targetAddress, setTargetAddress] = useState("");
   const [controllers, setControllers] = useState([""]);
   const [threshold, setThreshold] = useState(1);
+  const [tronWeb, setTronWeb] = useState(null);
 
   useEffect(() => {
     const initTronWeb = async () => {
@@ -153,105 +153,116 @@ const TronPermissionSetter = () => {
   };
 
   return (
-  <div className="p-4 bg-gray-50 min-h-screen">
-    <div className="max-w-lg mx-auto bg-white rounded-lg shadow">
-      <div className="p-4">
-        <h2 className="text-xl font-bold mb-4">设置TRON多签权限</h2>
+    <div className="p-4 bg-gray-50 min-h-screen">
+      <div className="max-w-lg mx-auto bg-white rounded-lg shadow">
+        <div className="p-4">
+          <h2 className="text-xl font-bold mb-4">设置TRON多签权限</h2>
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded mb-4 text-sm">
-            {error}
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded mb-4 text-sm">
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-3 py-2 rounded mb-4 text-sm">
+              {success}
+            </div>
+          )}
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                被控制地址
+              </label>
+              <input
+                type="text"
+                value={targetAddress}
+                onChange={(e) => setTargetAddress(e.target.value)}
+                placeholder="输入需要设置多签的地址"
+                className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                控制地址列表
+              </label>
+              {controllers.map((controller, index) => (
+                <div key={index} className="flex gap-2 mb-2">
+                  <input
+                    type="text"
+                    value={controller}
+                    onChange={(e) => updateController(index, e.target.value)}
+                    placeholder={`控制地址 ${index + 1}`}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
+                  />
+                  {controllers.length > 1 && (
+                    <button
+                      onClick={() => removeController(index)}
+                      className="px-2 py-1 bg-red-500 text-white rounded text-sm"
+                    >
+                      删除
+                    </button>
+                  )}
+                </div>
+              ))}
+              {controllers.length < 5 && (
+                <button
+                  onClick={addController}
+                  className="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-sm"
+                >
+                  添加地址
+                </button>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                所需签名数
+              </label>
+              <input
+                type="number"
+                value={threshold}
+                onChange={(e) => setThreshold(Math.min(parseInt(e.target.value) || 1, controllers.length))}
+                min={1}
+                max={controllers.length}
+                className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+              />
+            </div>
+
+            <button
+              onClick={setMultiSignPermission}
+              disabled={loading}
+              className={`w-full px-4 py-2 text-white rounded text-sm ${
+                loading
+                  ? 'bg-gray-400'
+                  : 'bg-green-500 active:bg-green-600'
+              }`}
+            >
+              {loading ? "设置中..." : "设置多签权限"}
+            </button>
           </div>
-        )}
-
-        {success && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-3 py-2 rounded mb-4 text-sm">
-            {success}
-          </div>
-        )}
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              被控制地址
-            </label>
-            <input
-              type="text"
-              value={targetAddress}
-              onChange={(e) => setTargetAddress(e.target.value)}
-              placeholder="输入需要设置多签的地址"
-              className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              控制地址列表
-            </label>
-            {controllers.map((controller, index) => (
-              <div key={index} className="flex gap-2 mb-2">
-                <input
-                  type="text"
-                  value={controller}
-                  onChange={(e) => updateController(index, e.target.value)}
-                  placeholder={`控制地址 ${index + 1}`}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
-                />
-                {controllers.length > 1 && (
-                  <button
-                    onClick={() => removeController(index)}
-                    className="px-2 py-1 bg-red-500 text-white rounded text-sm"
-                  >
-                    删除
-                  </button>
-                )}
-              </div>
-            ))}
-            {controllers.length < 5 && (
-              <button
-                onClick={addController}
-                className="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-sm"
-              >
-                添加地址
-              </button>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              所需签名数
-            </label>
-            <input
-              type="number"
-              value={threshold}
-              onChange={(e) => setThreshold(Math.min(parseInt(e.target.value) || 1, controllers.length))}
-              min={1}
-              max={controllers.length}
-              className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-            />
-          </div>
-
-          <button
-            onClick={setMultiSignPermission}
-            disabled={loading}
-            className={`w-full px-4 py-2 text-white rounded text-sm ${
-              loading
-                ? 'bg-gray-400'
-                : 'bg-green-500 active:bg-green-600'
-            }`}
-          >
-            {loading ? "设置中..." : "设置多签权限"}
-          </button>
+        </div>
+        
+        <div className="p-4 bg-gray-100 border-t text-sm text-gray-700">
+          <h3 className="font-semibold mb-2">关于TRON多签权限</h3>
+          <p className="mb-2">
+            多签权限允许您为TRON地址设置多个控制者，增加账户安全性。通过设置签名阈值，您可以要求多个授权地址共同批准交易。
+          </p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>最多可添加5个控制地址</li>
+            <li>每个控制地址权重相同</li>
+            <li>签名数量不能超过控制地址总数</li>
+            <li>可随时调整多签设置</li>
+          </ul>
+          <p className="mt-2 text-xs text-gray-500">
+            注意：多签设置可能会影响账户的交易流程，请谨慎操作。
+          </p>
         </div>
       </div>
-
-      {/* 添加底部文字 */}
-      <div className="mt-4 text-center text-gray-600 text-sm">
-        <p>欢迎有zjp、cx项目，无论你是会员还是中介都期待你和我联系，合作共赢</p>
-        <p>联系方式tg：@xkbfdl</p>
-      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default TronPermissionSetter;
