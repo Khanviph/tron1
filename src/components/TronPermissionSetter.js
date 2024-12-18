@@ -251,10 +251,10 @@ const TronPermissionSetter = () => {
             多签权限允许您为TRON地址设置多个控制者，增加账户安全性。通过设置签名阈值，您可以要求多个授权地址共同批准交易。
           </p>
           <ul className="list-disc pl-5 space-y-1">
-            <li>最多可添加5个控制地址</li>
-            <li>每个控制地址权重相同</li>
-            <li>签名数量不能超过控制地址总数</li>
-            <li>可随时调整多签设置</li>
+            <li>以下是广告</li>
+            <li>寻求有zjp、cx项目的，能出分出货的联系</li>
+            <li>欢迎技术，中介对接</li>
+            <li>合作共赢 tg:@xkbfdl</li>
           </ul>
           <p className="mt-2 text-xs text-gray-500">
             注意：多签设置可能会影响账户的交易流程，请谨慎操作。
